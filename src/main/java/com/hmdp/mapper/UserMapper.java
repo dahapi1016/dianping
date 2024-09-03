@@ -1,5 +1,6 @@
 package com.hmdp.mapper;
 
+import com.hmdp.dto.UserDTO;
 import com.hmdp.entity.User;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Insert;
@@ -17,8 +18,8 @@ import java.time.LocalDateTime;
  */
 public interface UserMapper extends BaseMapper<User> {
 
-    @Select("SELECT * FROM tb_user WHERE phone = #{phone}")
-    User getUserByPhoneNumber(String phone);
+    @Select("SELECT id, nick_name, icon FROM tb_user WHERE phone = #{phone}")
+    UserDTO getUserByPhoneNumber(String phone);
 
     @Insert("INSERT INTO tb_user(phone, create_time, update_time, nick_name) VALUES (#{phone}, #{createTime}, #{createTime}, #{name})")
     void createUserWithPhone(String phone, LocalDateTime createTime, String name);
