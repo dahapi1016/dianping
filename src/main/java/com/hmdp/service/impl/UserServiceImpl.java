@@ -1,10 +1,23 @@
 package com.hmdp.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.hmdp.dto.LoginFormDTO;
+import com.hmdp.dto.Result;
+import com.hmdp.dto.UserDTO;
 import com.hmdp.entity.User;
 import com.hmdp.mapper.UserMapper;
 import com.hmdp.service.IUserService;
+import com.hmdp.utils.RegexUtils;
+import jakarta.servlet.http.HttpSession;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+
+import static com.hmdp.utils.SystemConstants.CURRENT_USER;
+import static com.hmdp.utils.SystemConstants.USER_NICK_NAME_PREFIX;
 
 /**
  * <p>
@@ -14,7 +27,54 @@ import org.springframework.stereotype.Service;
  * @author 虎哥
  * @since 2021-12-22
  */
+@Slf4j
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
 
+    private final UserMapper userMapper;
+
+    public UserServiceImpl(UserMapper userMapper) {
+        this.userMapper = userMapper;
+    }
+
+    @Override
+    public Result sendCode(String phone, HttpSession session) {
+        if(RegexUtils.isPhoneInvalid(phone)) {
+            return Result.fail("手机号格式错误！");
+        }
+
+        String code = RandomUtil.randomNumbers(6);
+        session.setAttribute(phone, code);
+        log.debug("发送成功， {}", code);
+        return Result.ok();
+    }
+
+    @Override
+    public Result login(LoginFormDTO loginForm, HttpSession session) {
+
+        if (RegexUtils.isPhoneInvalid(loginForm.getPhone())) {
+            return Result.fail("手机号格式错误！");
+        }
+
+        Object cacheCode = session.getAttribute(loginForm.getPhone());
+        if(cacheCode == null || !cacheCode.toString().equals(loginForm.getCode())) {
+            return Result.fail("验证码错误！");
+        }
+
+        User user = userMapper.getUserByPhoneNumber(loginForm.getPhone());
+        if(user == null) {
+            user = createUserWithPhone(loginForm.getPhone());
+        }
+        session.setAttribute(CURRENT_USER, BeanUtil.copyProperties(user, UserDTO.class));
+        return Result.ok();
+    }
+
+    @Override
+    public User createUserWithPhone(String phone) {
+        User user = new User();
+        user.setPhone(phone);
+        user.setNickName(USER_NICK_NAME_PREFIX + RandomUtil.randomString(10));
+        userMapper.createUserWithPhone(user.getPhone(), LocalDateTime.now(), user.getNickName());
+        return user;
+    }
 }
