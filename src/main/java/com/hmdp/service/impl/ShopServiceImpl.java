@@ -1,17 +1,16 @@
 package com.hmdp.service.impl;
 
 import cn.hutool.core.util.RandomUtil;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmdp.dto.Result;
 import com.hmdp.entity.Shop;
 import com.hmdp.mapper.ShopMapper;
 import com.hmdp.service.IShopService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.hmdp.utils.CacheUtils;
 import jakarta.annotation.Resource;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 import java.util.concurrent.TimeUnit;
 
@@ -52,11 +51,12 @@ public class ShopServiceImpl extends ServiceImpl<ShopMapper, Shop> implements IS
     @Transactional
     public Result updateShopById(Shop shop) {
         //判空
+
         if(shop.getId() == null) {
             return Result.fail("店铺ID不能为空！");
         }
 
-        //先在数据库中修改，再删除缓存，降低线程安全问题造成的数据不一致风险
+        stringRedisTemplate.delete(CACHE_SHOP_KEY + shop.getId());
         shopMapper.updateShopById(shop);
         stringRedisTemplate.delete(CACHE_SHOP_KEY + shop.getId());
         return Result.ok();

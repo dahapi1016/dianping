@@ -40,8 +40,8 @@ public class CacheUtils {
         stringRedisTemplate.opsForValue().set(key, JSONUtil.toJsonStr(redisData));
     }
 
-    public <T, ID> T getWithOutPassingThrough(String prefix, ID id, Class<T> tClass, Function<ID, T> dbFallBack, Long time,
-                                              TimeUnit timeUnit) {
+    public <T, ID> T getWithOutPassingThrough(String prefix, ID id, Class<T> tClass, Function<ID, T> dbFallBack,
+                                              Long time, TimeUnit timeUnit) {
         String key = prefix + StrUtil.toString(id);
         String beanJson =  stringRedisTemplate.opsForValue().get(key);
         if(StrUtil.isNotBlank(beanJson)) {
@@ -61,8 +61,8 @@ public class CacheUtils {
         return t;
     }
 
-    public <T, ID> T getWithLogicalExpire(String lockPrefix, String idPrefix, ID id, Class<T> type, Function<ID, T> dbFallBack, Long time,
-                                          TimeUnit timeUnit) {
+    public <T, ID> T getWithLogicalExpire(String lockPrefix, String idPrefix, ID id, Class<T> type,
+                                          Function<ID, T> dbFallBack, Long time, TimeUnit timeUnit) {
         String key = idPrefix + StrUtil.toString(id);
         String beanJson =  stringRedisTemplate.opsForValue().get(key);
 
@@ -101,7 +101,8 @@ public class CacheUtils {
      * @return      获取是否成功
      */
     private boolean tryLock(String key) {
-        return Boolean.TRUE.equals(stringRedisTemplate.opsForValue().setIfAbsent(key, "lock", 10, TimeUnit.SECONDS));
+        return Boolean.TRUE.equals(stringRedisTemplate.opsForValue().setIfAbsent(key, "lock",
+                10, TimeUnit.SECONDS));
     }
 
     /**
