@@ -1,6 +1,16 @@
-if(redis.call('get', KEYS[1]) == ARGV[1]) then
-    return redis.call('del', KEY[1])
+local key = KEYS[1]
+local threadId = ARGV[1]
+local releaseTime = ARGV[2]
+if(redis.call('hexists', key, threadId)) then
+    return nil
 end
-return 0
+local count = redis.call('hincrby', key, threadId, '-1')
+if(count > 0) then
+    redis.call('expire', key, releaseTime)
+    return nil
+else
+    redis.call('del', key)
+    return nil
+end
 
 
