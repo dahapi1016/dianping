@@ -21,6 +21,11 @@ spring:
           max-idle: 10
           min-idle: 1
           time-between-eviction-runs: 10s
+  rabbitmq:
+    port: 5672
+    username: guest
+    password: guest
+    host: 127.0.0.1
 mybatis-plus:
   type-aliases-package: com.hmdp.entity # 别名扫描包
 logging:

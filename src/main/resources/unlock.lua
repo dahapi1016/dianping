@@ -1,7 +1,7 @@
 local key = KEYS[1]
 local threadId = ARGV[1]
 local releaseTime = ARGV[2]
-if(redis.call('hexists', key, threadId)) then
+if(redis.call('hexists', key, threadId) == 0) then
     return nil
 end
 local count = redis.call('hincrby', key, threadId, '-1')
