@@ -88,7 +88,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
                 );
         //设置token过期时间为30分钟
         stringRedisTemplate.opsForHash().putAll(LOGIN_USER_KEY + token, userMap);
-        stringRedisTemplate.expire(LOGIN_USER_KEY + token, LOGIN_USER_TTL, TimeUnit.SECONDS);
+        stringRedisTemplate.expire(LOGIN_USER_KEY + token, LOGIN_USER_TTL, TimeUnit.HOURS);
 
         return Result.ok(token);
     }
